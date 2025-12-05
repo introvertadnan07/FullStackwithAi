@@ -1,5 +1,6 @@
 import sys
-
+from fractions import Fraction
+from decimal import Decimal
 
 ideal_temp = 95.5 
 current_temp = 95.4999999
