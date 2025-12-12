@@ -12,3 +12,7 @@ print(Chaicup.describe(cup))
 
 cup_two = Chaicup()
 print(cup_two.describe())
+
+cup_two = Chaicup()
+cup_two.size = 100
+print(Chaicup.describe(cup_two))
