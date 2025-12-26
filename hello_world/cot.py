@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import json
 
-load_dotenv()
+load_dotenv() 
 
 client = OpenAI(
     base_url="https://api.openai.com/v1"
