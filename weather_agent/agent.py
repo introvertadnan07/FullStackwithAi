@@ -4,12 +4,25 @@ from dotenv import load_dotenv
 from openai import OpenAI
 import json
 import requests
+import os
+import subprocess
 
 load_dotenv()
 
 client = OpenAI(base_url="https://api.openai.com/v1")
 
-#  TOOLS 
+#  COMMAND TOOL 
+
+def run_command(cmd: str):
+    result = subprocess.run(
+        cmd,
+        shell=True,
+        capture_output=True,
+        text=True
+    )
+    return result.stdout or result.stderr
+
+#  WEATHER TOOL 
 
 def get_weather(city: str):
     url = f"https://wttr.in/{city.lower()}?format=%C+%t"
@@ -20,15 +33,17 @@ def get_weather(city: str):
 
     return "Weather data unavailable"
 
-# Tool registry with aliases
+#  TOOL REGISTRY 
+
 available_tools = {
     "get_weather": get_weather,
     "weather": get_weather,
     "weather_api": get_weather,
     "weather_tool": get_weather,
+    "run_command": run_command
 }
 
-# SYSTEM PROMPT 
+#  SYSTEM PROMPT 
 
 SYSTEM_PROMPT = """
 You are an AI agent that works step by step.
@@ -40,9 +55,11 @@ Rules:
 - Always respond in valid JSON
 - Use TOOL step only when an external tool is required
 - Use the tool name EXACTLY as one of the available tools
+- You are running on Windows PowerShell
 
 Available tools:
 - get_weather(city: str)
+- run_command(cmd: str): Takes a Windows PowerShell command
 
 JSON format:
 {
@@ -54,6 +71,8 @@ JSON format:
 """
 
 print("\n")
+
+#  RUN LOOP 
 
 message_history = [
     {"role": "system", "content": SYSTEM_PROMPT}
@@ -73,7 +92,6 @@ while True:
     message_history.append({"role": "assistant", "content": raw})
 
     parsed = json.loads(raw)
-
     step = parsed.get("step")
 
     if step == "START":
@@ -93,7 +111,6 @@ while True:
         tool_input = parsed.get("input", "")
 
         normalized_tool = tool_name.lower().replace("-", "_")
-
         print(f"⚒️ {tool_name} ({tool_input})")
 
         if normalized_tool not in available_tools:
