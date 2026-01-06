@@ -1,4 +1,4 @@
-services:
+ services:
   vector-db:
     image: qdrant/qdrant
     ports:
